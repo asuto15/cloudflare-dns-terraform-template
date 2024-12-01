@@ -1,0 +1,5 @@
+# Terraform state files
+terraform.tfstate
+terraform.tfstate.backup
+terraform/.terraform**
+terraform/terraform.tfvars
