@@ -2,47 +2,62 @@
 
 This repository is a template to manage Cloudflare's DNS records with Terraform and `cf-terraforming` on GitHub Actions.
 
-## How to use
-1. **Create a new repository using this template**
-Click "Use this template" button at the top of the repository page to create a new repository in your GitHub account.
-2. **Obtain Cloudflare API TOKEN & ZONE ID**
-- Create API Token that includes the permissions to edit the Zone Resources in Cloudflare Dash Board.
-- Get your Zone ID in your domain's overview page of the Cloudflare Dashboard
-3. **Add secrets to the repository**
-Add the following secrets in your repository under `Settings` -> `Secrets and variables` -> `Actions`.
-- `CLOUDFLARE_API_TOKEN`: your Cloudflare API Token
-- `CLOUDFLARE_ZONE_ID`: your Cloudflare Zone ID
-4. **Create a `init` branch**
-Create a new branch named `init` in your repository. You can do this on GitHub, or locally
-```bash
-git checkout -b init
-git push origin init
-```
+## Prerequisite
+This repository uses `terraform` & `cf-terraforming` commands. Please install them in advance.
 
-5. **GitHub Actions initializes existing DNS record automatically**(No action required in this step)
-- When the `init` branch is created, GitHub Actions will:
-  1. Run `cf-terraforming` to generate `terraform/records.tf` and `terraform/import.sh` from your existing DNS records.
-  2. Automatically remove Cloudflare Email Routing MX records from the generated files.
-  3. Apply the configuration to initialize Terraform state.
-  4. Commit the generated file (only `records.tf` but not the Terraform state file) to the init branch.
- `cf-terraforming` to generate `terraform/records.tf` from your existing DNS records.
-- The generated `records.tf` file will be committed to the`init` branch automatically.
-6. **Merge into `main` branch**
-- Open a Pull Request from the `init` branch to the `main` branch.
-- Review the changes and merge the pull request.
-7. **Manage DNS record**
-- Editting `terraform/records.tf`file to add, update, or delete DNS records as needed on another branch.
-8. **Commit changes and push them to the `main` branch**
-After editing `terraform/records.tf`, commit your changes and push them to the main branch
-```bash
-git add .
-git commit -m "Update DNS records"
-git push origin main
-```
-9. GitHub Actions automatically applies changes
-- When you push changes to the `main` branch, GitHub Actions will:
-  1. Run `terraform init` to prepare the environment.
-  2. Run `terraform apply` to apply the changes to your Cloudflare DNS records.
+## How to use
+### Initial setup
+1. **Create a new repository using this template**
+    - Click the "Use this template" button at the top of this repository page to create a new repository in your GitHub account.
+2. **Obtain Cloudflare API TOKEN & ZONE ID**
+    - Create API Token that includes the permissions to edit the Zone Resources in Cloudflare Dash Board.
+    - Get your Zone ID in your domain's overview page of the Cloudflare Dashboard
+3. **Add secrets to the repository**
+    - Add the following secrets in your repository under `Settings` -> `Secrets and variables` -> `Actions`.
+      - `CLOUDFLARE_API_TOKEN`: your Cloudflare API Token
+      - `CLOUDFLARE_ZONE_ID`: your Cloudflare Zone ID
+4. **Export Environment Variables**
+    - Export the following variables
+    ```bash
+    export CLOUDFLARE_API_TOKEN=""
+    export CLOUDFLARE_ZONE_ID=""
+    ```
+5. **Run the Initialization script**
+    - Use the `initialize.sh` script to import existing DNS records into Terraform for management.
+    ```bash
+    git checkout -b init
+    ./scripts/initialize.sh
+    ```
+    - During this process, DNS records will be imported into `terraform/records.tf` by `cf-terraforming`.
+      - Cloudflare Email Routing's MX records (e.g., `route*.mx.cloudflare.net`) will be excluded, as they cannot be managed by Terraform.
+6. **Commit the changes and push to remote**
+    - After running the script, commit the changes:
+    ```bash
+    git add .
+    git commit -m "Initialize Terraform configuration"
+    git push origin init
+    ```
+7. **Open and Merge a PR to the `main` branch**
+    - Create a Pull Request from the `init` branch to the `main` branch.
+    - Review and merge the PR to finalize the initial setup.
+
+### Managing DNS records
+1. **Edit DNS records in a new branch**
+    - Modify the `terraform/records.tf` file to add, update, or delete DNS records as needed.
+2. **Commit your changes**
+    - Save and commit your changes to the new branch.
+3. **Open a PR to the `main` branch and Review & Merge it**
+    - Open a Pull Request from the `init` branch to the `main` branch.
+    - Review the changes and merge the pull request.
+    ```bash
+    git add .
+    git commit -m "Update DNS records"
+    git push origin main
+    ```
+4. GitHub Actions automatically applies changes
+    - When you push changes to the `main` branch, GitHub Actions will:
+      1. Run `terraform init` to prepare the environment.
+      2. Run `terraform apply` to apply the changes to your Cloudflare DNS records.
 
 ## Advanced
 ### How state is managed
