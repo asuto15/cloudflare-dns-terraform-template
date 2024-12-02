@@ -21,8 +21,7 @@ cd terraform
 
 # set API Token in terraform.tfvars
 echo "create terraform.tfvars"
-echo "cloudflare_api_token = \"$CLOUDFLARE_API_TOKEN\"
-" > terraform.tfvars
+echo "cloudflare_api_token = \"$CLOUDFLARE_API_TOKEN\"" > terraform.tfvars
 
 # initialize terraform
 echo "initialize terraform"
@@ -35,7 +34,7 @@ cf-terraforming import --resource-type "cloudflare_record" -z $CLOUDFLARE_ZONE_I
 
 # delete unchangable records to manage mail servers in Cloudflare's Email Routing
 echo "delete unchangable records to manage mail servers in Cloudflare's Email Routing"
-python3 ../script/delete_cloudflare_mx_records.py
+python3 ../scripts/delete_cloudflare_mx_records.py
 
 # import existing dns records to manage them with terraform
 echo "import existing dns records to manage them with terraform"
