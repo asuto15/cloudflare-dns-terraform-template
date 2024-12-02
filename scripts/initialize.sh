@@ -8,6 +8,13 @@ else
   echo "CLOUDFLARE_ZONE_ID and CLOUDFLARE_API_TOKEN are set"
 fi
 
+# check if terraform is installed
+if [ ! -x "$(command -v terraform)" ]; then
+  echo "terraform is not installed"
+  exit 1
+else
+  echo "terraform is installed"
+fi
 
 # check cf-terraforming is installed
 if [ ! -x "$(command -v cf-terraforming)" ]; then
@@ -19,13 +26,24 @@ fi
 
 cd terraform
 
-# set API Token in terraform.tfvars
-echo "create terraform.tfvars"
-echo "cloudflare_api_token = \"$CLOUDFLARE_API_TOKEN\"" > terraform.tfvars
+# check if terraform.tfvars exists
+if [ ! -f terraform.tfvars ]; then
+  echo "create terraform.tfvars"
+  # set API Token in terraform.tfvars
+  echo "cloudflare_api_token = \"$CLOUDFLARE_API_TOKEN\"" > terraform.tfvars
+else
+  echo "terraform.tfvars already exists"
+fi
 
-# initialize terraform
-echo "initialize terraform"
-terraform init
+# check if .tfstate file exists
+if [ ! -f terraform.tfstate ]; then
+  # initialize terraform
+  echo "initialize terraform"
+  terraform init
+else
+  echo "terraform is already initialized"
+fi
+
 
 # generate .tf file from existing dns records
 echo "generate .tf file from existing dns records"
@@ -34,6 +52,7 @@ cf-terraforming import --resource-type "cloudflare_record" -z $CLOUDFLARE_ZONE_I
 
 # delete unchangable records to manage mail servers in Cloudflare's Email Routing
 echo "delete unchangable records to manage mail servers in Cloudflare's Email Routing"
+
 python3 ../scripts/delete_cloudflare_mx_records.py
 
 # import existing dns records to manage them with terraform
