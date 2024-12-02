@@ -84,4 +84,4 @@ Before using this repository, ensure the following tools are installed:
 - If you want to use a remote backend (e.g., AWS S3, Terraform Cloud), update your terraform configuration accordingly.
 
 ## License
-This project is licensed under the MIT License. See the LICENSE file for details.
+This project is licensed under the MIT License. See [LICENSE](LICENSE) file for details.
